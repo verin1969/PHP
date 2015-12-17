@@ -14,7 +14,9 @@ define("C_ERR_HEADER", "HTTP/1.1 406 ERROR");
 define("C_UNKNOWN",     0);  // Неизвестная заявка
 define("C_SUBS_CREATE", 1);  // Создание абонента
 define("C_SUBS_DELETE", 2);  // Удаление абонента
-#Файл журнала разбиваем по дням
+# Текстовые константы
+define("C_ERR_TEXT", "ERROR");  
+# Файл журнала разбиваем по дням
 $log_file_name = "./log/ipoe_".strftime ("%d%m%Y").".log"; 
 # Список разрешенных адресов
 $allowed_ips  = "0.0.0.0;10.15.5.15";
@@ -30,12 +32,16 @@ $_db_name  = 'radius';
 $_username = 'postgres'; 
 $_password = 'altldG5t';
 # Сообщение об ошибке
-$error_message = 'ERROR';
+$error_message = C_ERR_TEXT;
 
 # Перехват ошибок
 function error_handle($errcode, $err_message) {
     global $error_message;
-    $error_message = $err_message;
+    if (($errcode == E_ERROR) || ($errcode == E_WARNING )) {
+        $error_message = $err_message;       
+    } else {
+        $error_message = C_ERR_TEXT;
+    }
     return true;
 }
 
@@ -146,7 +152,9 @@ if (array_search($current_ip, explode(";",$allowed_ips)) === FALSE) {
 }
 
 # Создаем независимость от способа передачи параметров
-if ((isset($_GET)) and (!isset($_POST)))  $_POST = $_GET;
+if ((isset($_GET)) and ( !isset($_POST))) {
+    $_POST = $_GET;
+}
 # Создаем внутренние переменные из глобальныз массивов
 $reqtype = (isset($_POST['reqtype'])) ? $_POST['reqtype'] : C_UNKNOWN;
    
